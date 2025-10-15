@@ -1,24 +1,32 @@
 import React, { useState } from 'react';
-import { SafeAreaView, View,  Text,  TextInput,FlatList, TouchableHighlight, StyleSheet,}from 'react-native';
+import {
+  SafeAreaView,View,Text,TextInput,FlatList,TouchableHighlight,StyleSheet,} from 'react-native';
 import { Picker } from '@react-native-picker/picker';
-import { MenuItem } from './type'
+import { MenuItem } from './type';
 
 export default function MenuScreen() {
-  // State variables
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [coursetype, setCourse] = useState('');
   const [price, setPrice] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
+  const [filterType, setFilterType] = useState('All');
 
-  // Course options
   const course = ['Starter', 'Main', 'Dessert'];
 
-  // Handle add new item
+  // ✅ Add item handler
   const handleAddItem = () => {
     if (!name || !description || !coursetype || !price) {
-      setErrorMessage(' All fields are required.');
+      setErrorMessage('All fields are required.');
+      return;
+    }
+
+    // ✅ Remove "R" and convert safely to number
+    const cleanPrice = parseFloat(price.replace(/[^\d.]/g, ''));
+
+    if (isNaN(cleanPrice)) {
+      setErrorMessage('Please enter a valid price in Rands (e.g. R65 or 65).');
       return;
     }
 
@@ -27,7 +35,7 @@ export default function MenuScreen() {
       name,
       description,
       coursetype,
-      price: parseFloat(price),
+      price: cleanPrice,
     };
 
     setMenuItems([...menuItems, newItem]);
@@ -38,20 +46,38 @@ export default function MenuScreen() {
     setErrorMessage('');
   };
 
+  const filteredItems =
+    filterType === 'All'
+      ? menuItems
+      : menuItems.filter((item) => item.coursetype === filterType);
+
   return (
     <SafeAreaView style={styles.container}>
-      {/* Header */}
       <View style={styles.headingContainer}>
-       {/* Restaurant Name Header */}
-  <Text style={styles.restaurantName}>Chris Restaurant App</Text>
+        <Text style={styles.restaurantName}>Chris Restaurant App</Text>
         <Text style={styles.title}>🍽️ Chef Menu List</Text>
-        <Text style={styles.totalItems}>Total Items: {menuItems.length}</Text>
+        <Text style={styles.totalItems}>Total Items: {filteredItems.length}</Text>
       </View>
 
-      {/* FlatList to show menu items */}
+      {/* Filter Picker */}
+      <View style={styles.filterContainer}>
+        <Text style={styles.filterLabel}>Filter by Course:</Text>
+        <Picker
+          selectedValue={filterType}
+          onValueChange={(value) => setFilterType(value)}
+          style={styles.input}
+        >
+          <Picker.Item label="All" value="All" />
+          {course.map((c) => (
+            <Picker.Item label={c} value={c} key={c} />
+          ))}
+        </Picker>
+      </View>
+
+      {/* List */}
       <FlatList
-        data={menuItems}
-        keyExtractor={(item, index) => index.toString()}
+        data={filteredItems}
+        keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
           <View style={styles.menuItem}>
             <Text style={styles.dishName}>{item.name}</Text>
@@ -63,7 +89,7 @@ export default function MenuScreen() {
         style={styles.listView}
       />
 
-      {/* User Input Section */}
+      {/* Input Section */}
       <View style={styles.userInputView}>
         <Text style={styles.inputLabel}>➕ Add a New Dish</Text>
 
@@ -79,18 +105,19 @@ export default function MenuScreen() {
           value={description}
           onChangeText={setDescription}
         />
+
+        {/* ✅ Price input now supports 'R' */}
         <TextInput
           style={styles.input}
-          placeholder="price"
+          placeholder="Price (e.g. R65)"
           value={price}
-          keyboardType="numeric"
+          keyboardType="default"
           onChangeText={setPrice}
         />
 
-        {/* Picker for Course Type */}
         <Picker
           selectedValue={coursetype}
-         onValueChange={(itemValue) => setCourse(itemValue)}
+          onValueChange={(itemValue) => setCourse(itemValue)}
           style={styles.input}
         >
           <Picker.Item label="Select Course Type" value="" />
@@ -99,12 +126,8 @@ export default function MenuScreen() {
           ))}
         </Picker>
 
-        {/* Show error if needed */}
-        {errorMessage ? (
-          <Text style={styles.error}>{errorMessage}</Text>
-        ) : null}
+        {errorMessage ? <Text style={styles.error}>{errorMessage}</Text> : null}
 
-        {/* Button */}
         <TouchableHighlight
           style={styles.button}
           underlayColor="#cc6600"
@@ -116,17 +139,18 @@ export default function MenuScreen() {
     </SafeAreaView>
   );
 }
-// Define styles as a Typescript object with specific properties
+
+// Styles
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#fff' },// lighter
+  container: { flex: 1, backgroundColor: '#fff' },
   title: { fontSize: 24, fontWeight: 'bold', color: '#ff884d' },
   totalItems: { fontSize: 16, color: '#333', marginTop: 5 },
 
-  headingContainer: { 
-    alignItems: 'center', 
+  headingContainer: {
+    alignItems: 'center',
     justifyContent: 'center',
     padding: 20,
-    backgroundColor: '#fff0e6', // light background to stand out
+    backgroundColor: '#fff0e6',
     borderBottomWidth: 2,
     borderBottomColor: '#ff884d',
     marginBottom: 10,
@@ -135,9 +159,11 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
-    elevation: 3, // Android shadow
+    elevation: 3,
   },
 
+  filterContainer: { paddingHorizontal: 20, marginBottom: 10 },
+  filterLabel: { fontSize: 16, fontWeight: 'bold', marginBottom: 5 },
 
   listView: { paddingHorizontal: 16 },
   menuItem: {
@@ -159,7 +185,7 @@ const styles = StyleSheet.create({
     padding: 10,
     marginBottom: 10,
   },
-    restaurantName: {
+  restaurantName: {
     fontSize: 28,
     fontWeight: 'bold',
     color: '#ff6600',
@@ -169,7 +195,6 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
     letterSpacing: 2,
   },
-
   error: { color: 'red', marginBottom: 10 },
 
   button: {
