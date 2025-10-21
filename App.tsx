@@ -1,6 +1,13 @@
 import React, { useState } from 'react';
 import {
-  SafeAreaView,View,Text,TextInput,FlatList,TouchableHighlight,StyleSheet,} from 'react-native';
+  SafeAreaView,
+  View,
+  Text,
+  TextInput,
+  FlatList,
+  TouchableHighlight,
+  StyleSheet,
+} from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import { MenuItem } from './type';
 
@@ -74,7 +81,7 @@ export default function MenuScreen() {
         </Picker>
       </View>
 
-      {/* List */}
+      {/* Menu List */}
       <FlatList
         data={filteredItems}
         keyExtractor={(item) => item.id}
@@ -89,7 +96,7 @@ export default function MenuScreen() {
         style={styles.listView}
       />
 
-      {/* Input Section */}
+      {/* Add Dish Section */}
       <View style={styles.userInputView}>
         <Text style={styles.inputLabel}>➕ Add a New Dish</Text>
 
@@ -105,8 +112,6 @@ export default function MenuScreen() {
           value={description}
           onChangeText={setDescription}
         />
-
-        {/* ✅ Price input now supports 'R' */}
         <TextInput
           style={styles.input}
           placeholder="Price (e.g. R65)"
@@ -145,7 +150,6 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#fff' },
   title: { fontSize: 24, fontWeight: 'bold', color: '#ff884d' },
   totalItems: { fontSize: 16, color: '#333', marginTop: 5 },
-
   headingContainer: {
     alignItems: 'center',
     justifyContent: 'center',
@@ -161,10 +165,8 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 3,
   },
-
   filterContainer: { paddingHorizontal: 20, marginBottom: 10 },
   filterLabel: { fontSize: 16, fontWeight: 'bold', marginBottom: 5 },
-
   listView: { paddingHorizontal: 16 },
   menuItem: {
     backgroundColor: '#ffe7cc',
@@ -175,7 +177,6 @@ const styles = StyleSheet.create({
   dishName: { fontSize: 18, fontWeight: 'bold', color: '#333' },
   description: { fontSize: 14, color: '#555' },
   price: { fontWeight: 'bold', marginTop: 5, color: '#000' },
-
   userInputView: { padding: 20, borderTopWidth: 1, borderTopColor: '#ddd' },
   inputLabel: { fontSize: 18, fontWeight: 'bold', marginBottom: 10 },
   input: {
@@ -196,7 +197,6 @@ const styles = StyleSheet.create({
     letterSpacing: 2,
   },
   error: { color: 'red', marginBottom: 10 },
-
   button: {
     backgroundColor: '#ff884d',
     paddingVertical: 10,
